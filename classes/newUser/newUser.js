@@ -16,15 +16,17 @@ class NewUser {
   }
   _sendMail() {
     const transporter = nodemailer.createTransport({
-      service: "Gmail",
+      host: 'server303.web-hosting.com', // Namecheap SMTP server for your domain
+      port: 587, // Port number (usually 465 for secure SSL/TLS)
+      secure: false, 
       auth: {
-        user: "salehmalik121@gmail.com",
-        pass: "aiax pfcf mbcn ukcw",
+        user: "no-reply@eduskill.ai",
+        pass: "noreplyeduskill",
       },
     });
 
     const mailOptions = {
-      from: "salehmalik121@gmail.com",
+      from: "no-reply@eduskill.ai",
       to: this.Email,
       subject: "OTP",
       text: "Your OTP is : " + this._otp + "\nThis code will expire in 1 hour",
@@ -79,11 +81,6 @@ class NewUser {
         return {
           type: "Err",
           message: "JWT has expired",
-        };
-      } else if (error instanceof jwt.JsonWebTokenError) {
-        return {
-          type: "Err",
-          message: "Invalid JWT",
         };
       } else {
         console.error(error);

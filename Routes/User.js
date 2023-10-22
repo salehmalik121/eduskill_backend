@@ -1,15 +1,30 @@
 const express = require("express");
 const bodyParser = require('body-parser');
 const NewUser = require('../classes/newUser/newUser');
-const User = require("../Classes/User/User");
+const User = require("../classes/User/User");
 const userModel = require("../Schema/Users");
+
 
 const Router = express.Router();
 
 
-Router.post("/GetOTP" , bodyParser.json() , (req , res , next)=>{
+Router.post("/GetOTP" , bodyParser.json() , async(req , res , next)=>{
 
     const body = req.body;
+
+    const userList = await userModel.find({ "Email": { $regex: new RegExp(body.Email, 'i') }});
+
+    if(userList.length != 0){
+        res.status(200).json({
+          type: "err",
+          message: "User Already Exist With this Email",
+        })
+
+        return;
+
+    }
+
+
     const User = new NewUser(body.FirstName , body.LastName , body.Email);
     const jwtToken = User.getPublicToken();
 
