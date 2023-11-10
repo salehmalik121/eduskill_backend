@@ -12,9 +12,9 @@ Router.post("/GetOTP" , bodyParser.json() , async(req , res , next)=>{
 
     const body = req.body;
 
-    const userList = await userModel.find({ "Email": { $regex: new RegExp(body.Email, 'i') }});
+    const userList = await userModel.find({ "Email": { $regex: new RegExp('^' + body.Email + '$' , 'i') }});
 
-    if(userList.length != 0){
+    if(userList.length != 0){ 
         res.status(200).json({
           type: "err",
           message: "User Already Exist With this Email",
@@ -56,7 +56,8 @@ Router.post("/login" , bodyParser.json() , async(req , res , next)=>{
     const email = req.body.email;
     const password = req.body.password;
     console.log(req.body);
-    userModel.findOne({"Email" : email}).then(found=>{
+    userModel.findOne({ "Email": { $regex: new RegExp('^' + email + '$' , 'i') }}).then(found=>{
+        console.log(found);
         if(found === null){
             res.status(200).json({
                 "allowed" : false,
@@ -76,6 +77,35 @@ Router.post("/login" , bodyParser.json() , async(req , res , next)=>{
         }
     })
 
+})
+
+Router.post("/forgotPassWordOTP" , bodyParser.json() , async(req , res , next)=>{
+    const email = req.body.Email;
+    const user = new User();
+    const returnJson = await user.forgotPassword(email);
+    console.log(returnJson)
+    res.status(200).json(returnJson);
+})
+
+
+Router.post("/forgotPassWordOTPVerification" , bodyParser.json() , async(req , res , next)=>{
+    const body = req.body;
+    console.log(body);
+    const user = new User();
+    const returnJson = user.verifyOTP(body.token , body.OTP , body.Email)
+    console.log(returnJson)
+    res.status(200).json(returnJson);
+})
+
+
+Router.post("/UpdatePassword" , bodyParser.json() , async(req , res , next)=>{
+    const body = req.body;
+    const token = body.token;
+    const password = body.password;
+    console.log(token);
+    const _User = new User(token);
+    await _User.updatePassword(password);
+    res.sendStatus(200);
 })
 
 
