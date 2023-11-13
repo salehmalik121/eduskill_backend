@@ -11,9 +11,11 @@ const userSchema = new Schema({
     plan: { type: String, default: 'Trail' },
     expiresAt: { type: Date, default: null },
   },
-  MessagesLeft : {type: Number , default : 20},
-  Vocal : {type : Boolean , default : false},
-  interest : [String]
+  MessagesLeft: {type: Number , default : 20},
+  Vocal: {type : Boolean , default : false},
+  interest: [String],
+  WrittenChat: {type : Array},
+  SpeakingChat: {type : Array}
 });
 
 

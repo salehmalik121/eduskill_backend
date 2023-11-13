@@ -3,10 +3,10 @@ const bodyParser = require('body-parser');
 const NewUser = require('../classes/newUser/newUser');
 const User = require("../classes/User/User");
 const userModel = require("../Schema/Users");
-
+const jwt = require("jsonwebtoken");
 
 const Router = express.Router();
-
+const key ="a4e27f15bb12d99897a30b35ead719a81ad6a37ade8b0f0251453b2ebc03a600";
 
 Router.post("/GetOTP" , bodyParser.json() , async(req , res , next)=>{
 
@@ -63,8 +63,13 @@ Router.post("/login" , bodyParser.json() , async(req , res , next)=>{
             })
         }else {
             if(found.Password === password){
+                const jwtToken = jwt.sign(
+                    { Email: email},
+                    key,
+                  );
                 res.status(200).json({
-                    "allowed" : true
+                    "allowed" : true,
+                    "token" : jwtToken
                 })
             }else{
                 res.status(200).json({

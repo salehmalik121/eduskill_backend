@@ -2,6 +2,7 @@ const express = require("express");
 const User = require("./Routes/User")
 const mongoose = require("mongoose");
 const cors = require("cors")
+const Chat = require("./Routes/Chat")
 
 // global values
 const port = process.env.PORT || 3000;
@@ -25,6 +26,7 @@ app.use(cors());
 
 
 app.use("/User" , User);
+app.use("/Chat" , Chat);
 
 
 app.listen(port , ()=>{
