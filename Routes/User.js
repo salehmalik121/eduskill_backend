@@ -40,7 +40,6 @@ Router.post("/verifyOTP" , bodyParser.json() , (req , res , next)=>{
     res.status(200).json(state);
 })
 
-
 Router.post("/saveUser" , bodyParser.json() , async(req , res , next)=>{
     const body = req.body;
     const token = body.token;
@@ -50,7 +49,6 @@ Router.post("/saveUser" , bodyParser.json() , async(req , res , next)=>{
     await _User.saveUser(password);
     res.sendStatus(200);
 })
-
 
 Router.post("/login" , bodyParser.json() , async(req , res , next)=>{
     const email = req.body.email;
@@ -87,7 +85,6 @@ Router.post("/forgotPassWordOTP" , bodyParser.json() , async(req , res , next)=>
     res.status(200).json(returnJson);
 })
 
-
 Router.post("/forgotPassWordOTPVerification" , bodyParser.json() , async(req , res , next)=>{
     const body = req.body;
     console.log(body);
@@ -96,7 +93,6 @@ Router.post("/forgotPassWordOTPVerification" , bodyParser.json() , async(req , r
     console.log(returnJson)
     res.status(200).json(returnJson);
 })
-
 
 Router.post("/UpdatePassword" , bodyParser.json() , async(req , res , next)=>{
     const body = req.body;
