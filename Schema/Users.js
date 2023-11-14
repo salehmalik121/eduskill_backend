@@ -15,7 +15,8 @@ const userSchema = new Schema({
   Vocal: {type : Boolean , default : false},
   interest: [String],
   WrittenChat: {type : Array},
-  SpeakingChat: {type : Array}
+  SpeakingChat: {type : Array},
+  ListeningChat: {type : Array}
 });
 
 

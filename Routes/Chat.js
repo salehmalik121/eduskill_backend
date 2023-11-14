@@ -1,11 +1,9 @@
 const express = require("express");
 const bodyParser = require('body-parser');
-const { Configuration, OpenAI } = require('openai');
-const User = require("../classes/User/User");
+const { OpenAI } = require('openai');
 const userModel = require("../Schema/Users");
 const jwt = require("jsonwebtoken");
-
-
+require('dotenv').config();
 const Router = express.Router();
 const key ="a4e27f15bb12d99897a30b35ead719a81ad6a37ade8b0f0251453b2ebc03a600";
 
@@ -24,6 +22,7 @@ Router.post("/Writingconversation" , bodyParser.json() , async(req , res , next)
             res.status(203).json({
                 "message" : "Your plan limit is exceeded please upgrade your plan."
             })
+            return;
         }else{
             const newUpdate = data.MessagesLeft-1;
             await userModel.findOneAndUpdate({"Email" : payload.Email}, {"MessagesLeft" : newUpdate})
@@ -34,7 +33,7 @@ Router.post("/Writingconversation" , bodyParser.json() , async(req , res , next)
 
 
       const openai = new OpenAI({
-        apiKey: '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', 
+        apiKey: process.env.OPEN_AI_KEY, 
       });
         const message = userMessage;
         let messagePrompt
@@ -114,7 +113,7 @@ Router.post("/Speakingconversation" , bodyParser.json() , async(req , res , next
 
 
       const openai = new OpenAI({
-        apiKey: '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', 
+        apiKey: process.env.OPEN_AI_KEY, 
       });
         const message = userMessage;
         let messagePrompt
@@ -169,6 +168,92 @@ Router.post("/loadSpeakingConversation" , bodyParser.json() , async(req , res, n
     res.status(200).json(data.SpeakingChat);
 
 })
+
+
+Router.post("/loadListeningConversation" , bodyParser.json() , async(req , res, next)=>{
+    const body = req.body;
+    const userToken = body.token;
+    const payload = jwt.verify(userToken, key);
+    const data = await userModel.findOne({"Email" : payload.Email})
+    console.log(data);
+    res.status(200).json(data.ListeningChat);   
+})
+
+Router.post("/listeningConverstaion" , bodyParser.json() , async(req , res , next)=>{
+
+    const body = req.body;
+    const userMessage = body.content;
+    const userToken = body.token;
+    const payload = jwt.verify(userToken, key);
+
+    console.log(payload);
+
+    let chatHistory = [];
+    await userModel.findOne({"Email" : payload.Email}).then(async(data)=>{
+        if(data.MessagesLeft == 0){
+            res.status(203).json({
+                "message" : "Your plan limit is exceeded please upgrade your plan."
+            })
+            console.log("Ended");
+        }else{
+            const newUpdate = data.MessagesLeft-1;
+            await userModel.findOneAndUpdate({"Email" : payload.Email}, {"MessagesLeft" : newUpdate})
+            chatHistory = [...data.ListeningChat];
+            const openai = new OpenAI({
+                apiKey: process.env.OPEN_AI_KEY, 
+              });
+                const message = userMessage;
+                let messagePrompt
+                if(chatHistory.length === 0){
+                     messagePrompt = [
+                        {	role : "system" , content : " Your are teacher You have not to administer Time Just check when ever student answers AI, please create a basic IELTS mock test covering Listening Section: Develop 4 transcripts that mimic the IELTS listening test format Remember its import transcript should be like real person . And  check my answers using conversational memory also at final answer tell where i stand send me don't tell me answers just questions  important : if student ask for some other info do answer but not after test"},      
+                        { role: "user", content: message },
+                    ];
+                }else{
+                     messagePrompt = [
+                        {	role : "system" , content : "Your are teacher You have not to administer Time Just check when ever student answers AI, please create a basic IELTS mock test covering  Listening Section: Develop 4 transcripts that mimic the IELTS listening test format Remember its import transcript should be like real person. check my answers using conversational memory also at final answer tell where i stand send me don't tell me answers just questions  important : if student ask for some other info do answer but not after test "},      
+                        ,
+                        ...chatHistory
+                        ,
+                        { role: "user", content: message },
+                    ];
+                }
+        
+                const filteredMessagePrompt = messagePrompt.filter(element => element !== undefined);
+                  console.log(filteredMessagePrompt);
+                const response = await openai.chat.completions.create({
+                    model: "gpt-3.5-turbo",
+                    messages: filteredMessagePrompt,
+                    max_tokens: 2024,
+                    n: 1,
+                    
+                    temperature: 0.5,
+                    
+                });
+                try{
+                const output = response.choices[0].message;
+                const jsonObject = output;
+                console.log(jsonObject);
+                chatHistory.push({role : "user" , content: message});
+                chatHistory.push(jsonObject);
+                await userModel.findOneAndUpdate({"Email" : payload.Email}, {"ListeningChat" : chatHistory})
+                res.status(200).json(jsonObject);
+                }catch(err){
+                    console.log(err);
+                res.status(500).json(err);
+                }
+        }
+    })
+
+
+
+
+
+})
+
+
+
+
 
 
 

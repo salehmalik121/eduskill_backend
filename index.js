@@ -1,7 +1,6 @@
 const express = require("express");
 const User = require("./Routes/User")
 const mongoose = require("mongoose");
-const cors = require("cors")
 const Chat = require("./Routes/Chat")
 
 // global values
@@ -16,13 +15,16 @@ mongoose.connect("mongodb+srv://salehmalik121:pKQqiyYUtcGvETfv@cluster0.oodu1bc.
 //server instance 
 const app = express();
 
+
+
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    // You can include more headers if needed
+    res.setHeader('Access-Control-Allow-Methods', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
   });
-app.use(cors());
+
 
 
 app.use("/User" , User);
